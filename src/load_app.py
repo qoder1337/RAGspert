@@ -11,9 +11,6 @@ from src.database import (
 from src.routes.base import base_route
 from src.routes.user import user_route
 from zoneinfo import ZoneInfo
-# from src import globals_mapping_loader
-# import os
-# PRIVATE_API_KEY = os.getenv("PRIVATE_API_KEY")
 
 
 # change accordingly for your own Timezone

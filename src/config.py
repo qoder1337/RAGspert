@@ -9,7 +9,7 @@ class AppSettings(BaseSettings):
     APP_ENV: str
     APP_NAME: str
     # EXT_DB: str
-    # PRIVATE_API_KEY: str
+    GEMINI_API_KEY: str
     DEBUG: bool
     RELOAD: bool
 
