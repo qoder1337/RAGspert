@@ -1,0 +1,3 @@
+- Good startingpoint for FastAPI devs
+- Back2Basics
+- high performance
