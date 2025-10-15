@@ -1,16 +1,16 @@
+import os
 from datetime import datetime
 from fastapi import FastAPI, Request, HTTPException, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.gzip import GZipMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-from src.database import (
-    sessionmanager_local,
-    # sessionmanager_external,
-    Base,
-)
+from src.database import Base, sessionmanager_pgvector
 from src.routes.base import base_route
 from src.routes.user import user_route
+from src.routes.agent import agent_route
 from zoneinfo import ZoneInfo
+from src.config import BASEDIR
 
 
 # change accordingly for your own Timezone
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     # Startup logic HERE
 
     # # Create Local Database Tables
-    engine = sessionmanager_local.get_engine()
+    engine = sessionmanager_pgvector.get_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
@@ -42,14 +42,19 @@ async def lifespan(app: FastAPI):
     # Shutdown logic HERE
 
     # close DB Sessions
-    if sessionmanager_local._engine is not None:
-        await sessionmanager_local.close()
-    if sessionmanager_external._engine is not None:
-        await sessionmanager_external.close()
+    if sessionmanager_pgvector._engine is not None:
+        await sessionmanager_pgvector.close()
+    # if sessionmanager_external._engine is not None:
+    #     await sessionmanager_external.close()
 
 
 ### APP INIT
 app = FastAPI(lifespan=lifespan)
+
+# Serve static files
+app.mount(
+    "/s", StaticFiles(directory=os.path.join(BASEDIR, "src", "static")), name="static"
+)
 
 
 ### MIDDLEWARE
@@ -92,6 +97,7 @@ async def add_current_time(request: Request, call_next):
 ### ADD ROUTES
 app.include_router(base_route)
 app.include_router(user_route)
+app.include_router(agent_route)
 
 
 ### ERRORS

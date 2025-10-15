@@ -189,3 +189,4 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+compose-test.yaml

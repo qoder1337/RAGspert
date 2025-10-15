@@ -1,11 +1,8 @@
 from src.database.db_settings import (
     DatabaseSessionManager,
-    sessionmanager_local,
-    get_db_session_local,
-    # sessionmanager_external,
-    # get_db_session_external,
-    DBSessionDep_local,
-    # DBSessionDep_external,
+    sessionmanager_pgvector,
+    get_db_session_pgvector,
+    DBSessionDep_pgvector,
     Base,
 )
 

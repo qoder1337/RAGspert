@@ -65,42 +65,17 @@ class DatabaseSessionManager:
             await session.close()
 
 
-#### fastAPI-DB (local)
-sessionmanager_local = DatabaseSessionManager(
-    SET_CONF.SQLALCHEMY_DATABASE_URI,
-    {
-        "echo": SET_CONF.DEBUG,
-        "pool_size": 5,
-        "max_overflow": 10,
-        "pool_timeout": 30,
-        "pool_pre_ping": True,
-        "connect_args": {
-            "check_same_thread": False,  # async SQLite-optimized
-            "timeout": 20,  # SQLite-optimized
-        },
-    },
+#### PGVector Embeddings
+sessionmanager_pgvector = DatabaseSessionManager(
+    SET_CONF.EMBED_STORE, {"echo": SET_CONF.DEBUG}
 )
-
-#### fastAPI-DB (external)
-# sessionmanager_external = DatabaseSessionManager(
-#     SET_CONF.EXT_DB,
-#     {
-#         "echo": SET_CONF.DEBUG,
-#     },
-# )
 
 
 ############## DB-SESSIONS for Dependency Injection.
-async def get_db_session_local():
-    async with sessionmanager_local.session() as session:
+async def get_db_session_pgvector():
+    async with sessionmanager_pgvector.session() as session:
         yield session
 
 
-# async def get_db_session_external():
-#     async with sessionmanager_external.session() as session:
-#         yield session
-
-
 ############## DB-DEPENDENCIES
-DBSessionDep_local = Annotated[AsyncSession, Depends(get_db_session_local)]
-# DBSessionDep_external = Annotated[AsyncSession, Depends(get_db_session_external)]
+DBSessionDep_pgvector = Annotated[AsyncSession, Depends(get_db_session_pgvector)]

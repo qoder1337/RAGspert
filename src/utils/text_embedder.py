@@ -1,13 +1,5 @@
 import asyncio
-from google import genai
-from functools import lru_cache
-from src.config import SET_CONF
-
-
-@lru_cache
-def get_gemini_client() -> genai.Client:
-    """Singleton für Gemini Client."""
-    return genai.Client(api_key=SET_CONF.GEMINI_API_KEY)
+from src.utils.llm.gemini_cl import gemini_client
 
 
 async def get_embeddings_batch(
@@ -28,17 +20,14 @@ async def get_embeddings_batch(
         List of embedding vectors
     """
 
-    client = get_gemini_client()
-
     all_embeddings = []
 
-    # In Batches aufteilen
     for i in range(0, len(texts), batch_size):
         batch = texts[i : i + batch_size]
 
         try:
             result = await asyncio.to_thread(
-                client.models.embed_content,
+                gemini_client.models.embed_content,
                 model="models/gemini-embedding-001",
                 contents=batch,
                 config={"task_type": task_type, "output_dimensionality": dimensions},
@@ -52,3 +41,23 @@ async def get_embeddings_batch(
             all_embeddings.extend([[0.0] * dimensions] * len(batch))
 
     return all_embeddings
+
+
+async def get_embedding_single(
+    text: str,
+    task_type: str = "QUESTION_ANSWERING",
+    dimensions: int = 768,
+) -> list[float]:
+    """Get single embedding (for user queries)."""
+    try:
+        result = await asyncio.to_thread(
+            gemini_client.models.embed_content,
+            model="models/gemini-embedding-001",
+            contents=text,
+            config={"task_type": task_type, "output_dimensionality": dimensions},
+        )
+        return result.embeddings[0].values
+
+    except Exception as e:
+        print(f"Error getting embedding: {e}")
+        return [0.0] * dimensions

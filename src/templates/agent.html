@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAGspert Agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <h1>RAGspert Agent</h1>
+      <p>Stellen Sie eine Frage an die Dokumentation.</p>
+      <form action="/agent/run" method="post">
+        <div class="form-group">
+          <label for="library_name">Library Name:</label>
+          <input type="text"
+                 id="library_name"
+                 name="library_name"
+                 value="{{ library_name or '' }}"
+                 required>
+        </div>
+        <div class="form-group">
+          <label for="query">Ihre Frage:</label>
+          <textarea id="query" name="query" rows="4" required>{{ query or '' }}</textarea>
+        </div>
+        <button type="submit">Frage stellen</button>
+      </form>
+      {% if result %}
+        <div class="result">
+          <h2>Antwort:</h2>
+          <p>{{ result }}</p>
+        </div>
+      {% endif %}
+      {% if error %}
+        <div class="error">
+          <h2>Fehler:</h2>
+          <p>{{ error }}</p>
+        </div>
+      {% endif %}
+    </div>
+  </body>
+</html>

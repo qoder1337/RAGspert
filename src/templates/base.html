@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% block head %}
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="robots"
+            content="noindex, nofollow, noarchive, nocache, noodp, noai, noimageai">
+      <title>
+        {% block title %}
+        {% endblock title %}
+      - RAGspert</title>
+      <link rel="stylesheet"
+            href="{{ url_for('static', path='/css/style.css') }}">
+      <link rel="apple-touch-icon"
+            sizes="120x120"
+            href="{{ url_for('static', path='/img/fav/apple-touch-icon.png') }}">
+      <link rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="{{ url_for('static', path='/img/fav/favicon-32x32.png') }}">
+      <link rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="{{ url_for('static', path='/img/fav/favicon-16x16.png') }}">
+      <link rel="manifest"
+            href="{{ url_for('static', path='/img/fav/site.webmanifest') }}">
+      <link rel="mask-icon"
+            href="{{ url_for('static', path='/img/fav/safari-pinned-tab.svg') }}"
+            color="#5bbad5">
+      <link rel="shortcut icon"
+            href="{{ url_for('static', path='/img/fav/favicon.ico') }}">
+      <meta name="apple-mobile-web-app-title" content="dashprice">
+      <meta name="application-name" content="dashprice">
+      <meta name="msapplication-TileColor" content="#00aba9">
+      <meta name="msapplication-config"
+            content="{{ url_for('static', path='/img/fav/browserconfig.xml') }}">
+      <meta name="theme-color" content="#ffffff">
+    {% endblock head %}
+  </head>
+  <body>
+    <div id="mainnav">
+      <nav class="navbar">
+        <a href="/">info</a>
+        {% if request.cookies.get('access-token') %}
+          <a href="/dashboard">dashboard</a>
+          <a href="/user/settings">data</a>
+          <a href="/user/logout">sign out</a>
+        {% else %}
+          <a href="/user/login">sign in</a>
+        {% endif %}
+      </nav>
+      <div class="contcent">
+        <div class="childcent">
+          <a href="{{ url_for('root') }}">
+            <img src="{{ url_for('static', path='/img/ragspert-logo.png') }}"
+                 alt="ragspert Logo"
+                 width="512"
+                 height="128">
+          </a>
+        </div>
+      </div>
+    </div>
+    {% block content %}
+    {% endblock content %}
+  </body>
+</html>

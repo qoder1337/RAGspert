@@ -1,4 +1,5 @@
 import os
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASEDIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -7,11 +8,11 @@ APPDIR = os.path.abspath(os.path.dirname(__file__))
 
 class AppSettings(BaseSettings):
     APP_ENV: str
-    APP_NAME: str
-    # EXT_DB: str
     GEMINI_API_KEY: str
-    DEBUG: bool
-    RELOAD: bool
+    EMBED_STORE: str
+    # DEBUG: bool
+    # RELOAD: bool
+    # APP_NAME: str
 
     model_config = SettingsConfigDict(
         env_file=os.path.join(BASEDIR, ".env"),
@@ -21,33 +22,27 @@ class AppSettings(BaseSettings):
 
 
 class ProductionConfig(AppSettings):
-    SQLALCHEMY_DATABASE_URI: str = "sqlite+aiosqlite:///" + os.path.join(
-        APPDIR, "database", "db", "production.db"
-    )
-    # EXT_DB: str = os.getenv("EXT_DB")
+    EMBED_STORE: str = Field(..., validation_alias="PGVECTOR_EMBED_STORE")
+    TABLE_PREFIX: str = "prod_"
     DEBUG: bool = False
     RELOAD: bool = False
-    APP_NAME: str = "Starter for FastAPI (Production)"
+    APP_NAME: str = "RAGspert with FastAPI (Production)"
 
 
 class DevelopmentConfig(AppSettings):
-    SQLALCHEMY_DATABASE_URI: str = "sqlite+aiosqlite:///" + os.path.join(
-        APPDIR, "database", "db", "development.db"
-    )
-    # EXT_DB: str = os.getenv("EXT_DB")
+    EMBED_STORE: str = Field(..., validation_alias="PGVECTOR_EMBED_STORE")
+    TABLE_PREFIX: str = "dev_"
     DEBUG: bool = True
     RELOAD: bool = True
-    APP_NAME: str = "Starter for FastAPI (Development)"
+    APP_NAME: str = "RAGspert with FastAPI (Development)"
 
 
 class TestingConfig(AppSettings):
-    SQLALCHEMY_DATABASE_URI: str = "sqlite+aiosqlite:///" + os.path.join(
-        APPDIR, "database", "db", "test.db"
-    )
-    # EXT_DB: str = os.getenv("EXT_DB")
+    EMBED_STORE: str = Field(..., validation_alias="PGVECTOR_EMBED_STORE")
+    TABLE_PREFIX: str = "test_"
     DEBUG: bool = True
     RELOAD: bool = True
-    APP_NAME: str = "Starter for FastAPI (Testing)"
+    APP_NAME: str = "RAGspert with FastAPI (Testing)"
 
 
 config_setting = {
@@ -60,7 +55,5 @@ choose_setting = os.getenv("APP_ENV", "development")
 SET_CONF = config_setting[choose_setting]()
 
 
-if __name__ == "__main__":
-    print(f"{BASEDIR=}")
-    print(f"{APPDIR=}")
-    print(SET_CONF)
+# _env = AppSettings().APP_ENV
+# SET_CONF = config_setting[_env]()

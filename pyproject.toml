@@ -13,6 +13,12 @@ dependencies = [
     "pgvector>=0.4.1",
     "pydantic-ai-slim[google]>=1.0.17",
     "pydantic-settings>=2.11.0",
+    "python-multipart>=0.0.20",
     "sqlalchemy>=2.0.43",
     "uvicorn[standard]>=0.37.0",
+]
+
+[dependency-groups]
+dev = [
+    "djlint>=1.36.4",
 ]
