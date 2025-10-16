@@ -13,42 +13,62 @@
       <link rel="stylesheet"
             href="{{ url_for('static', path='/css/style.css') }}">
       <link rel="apple-touch-icon"
+            sizes="57x57"
+            href="{{ url_for('static', path='/img/fav/apple-icon-57x57.png') }}">
+      <link rel="apple-touch-icon"
+            sizes="60x60"
+            href="{{ url_for('static', path='/img/fav/apple-icon-60x60.png') }}">
+      <link rel="apple-touch-icon"
+            sizes="72x72"
+            href="{{ url_for('static', path='/img/fav/apple-icon-72x72.png') }}">
+      <link rel="apple-touch-icon"
+            sizes="76x76"
+            href="{{ url_for('static', path='/img/fav/apple-icon-76x76.png') }}">
+      <link rel="apple-touch-icon"
+            sizes="114x114"
+            href="{{ url_for('static', path='/img/fav/apple-icon-114x114.png') }}">
+      <link rel="apple-touch-icon"
             sizes="120x120"
-            href="{{ url_for('static', path='/img/fav/apple-touch-icon.png') }}">
+            href="{{ url_for('static', path='/img/fav/apple-icon-120x120.png') }}">
+      <link rel="apple-touch-icon"
+            sizes="144x144"
+            href="{{ url_for('static', path='/img/fav/apple-icon-144x144.png') }}">
+      <link rel="apple-touch-icon"
+            sizes="152x152"
+            href="{{ url_for('static', path='/img/fav/apple-icon-152x152.png') }}">
+      <link rel="apple-touch-icon"
+            sizes="180x180"
+            href="{{ url_for('static', path='/img/fav/apple-icon-180x180.png') }}">
+      <link rel="icon"
+            type="image/png"
+            sizes="192x192"
+            href="{{ url_for('static', path='/img/fav/android-icon-192x192.png') }}">
       <link rel="icon"
             type="image/png"
             sizes="32x32"
             href="{{ url_for('static', path='/img/fav/favicon-32x32.png') }}">
       <link rel="icon"
             type="image/png"
+            sizes="96x96"
+            href="{{ url_for('static', path='/img/fav/favicon-96x96.png') }}">
+      <link rel="icon"
+            type="image/png"
             sizes="16x16"
             href="{{ url_for('static', path='/img/fav/favicon-16x16.png') }}">
       <link rel="manifest"
-            href="{{ url_for('static', path='/img/fav/site.webmanifest') }}">
-      <link rel="mask-icon"
-            href="{{ url_for('static', path='/img/fav/safari-pinned-tab.svg') }}"
-            color="#5bbad5">
-      <link rel="shortcut icon"
-            href="{{ url_for('static', path='/img/fav/favicon.ico') }}">
-      <meta name="apple-mobile-web-app-title" content="dashprice">
-      <meta name="application-name" content="dashprice">
-      <meta name="msapplication-TileColor" content="#00aba9">
-      <meta name="msapplication-config"
-            content="{{ url_for('static', path='/img/fav/browserconfig.xml') }}">
+            href="{{ url_for('static', path='/img/fav/manifest.json') }}">
+      <meta name="msapplication-TileColor" content="#ffffff">
+      <meta name="msapplication-TileImage"
+            content="{{ url_for('static', path='/img/fav/ms-icon-144x144.png') }}">
       <meta name="theme-color" content="#ffffff">
     {% endblock head %}
   </head>
   <body>
     <div id="mainnav">
       <nav class="navbar">
-        <a href="/">info</a>
-        {% if request.cookies.get('access-token') %}
-          <a href="/dashboard">dashboard</a>
-          <a href="/user/settings">data</a>
-          <a href="/user/logout">sign out</a>
-        {% else %}
-          <a href="/user/login">sign in</a>
-        {% endif %}
+        <a href="{{ url_for('root') }}">info</a>
+        <a href="{{ url_for('crawl_form') }}">crawl</a>
+        <a href="{{ url_for('ask_form') }}">ask</a>
       </nav>
       <div class="contcent">
         <div class="childcent">

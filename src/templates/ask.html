@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}
+  RAGSpert Index: Start crawling
+{% endblock title %}
+{% block content %}
+  <div id="maincontent">
+    <h1>Ask your RAGspert</h1>
+    <form id="addCrawlerForm"
+          class="question"
+          method="post"
+          action="{{ url_for('crawl_form') }}">
+      <textarea class="crawlerInput"
+                rows="6"
+                name="question"
+                placeholder="Your Question here"
+                required></textarea>
+      <select class="crawlerInput" name="source" required>
+        <option value="" disabled selected>Select Documentation</option>
+        {% for doc in available_docs %}<option value="{{ doc }}">{{ doc }}</option>{% endfor %}
+      </select>
+      <button type="submit">❓ ASK</button>
+    </form>
+    <div class="contcent">
+      <div class="childcent">
+        <div id="loading"
+             style="display: {% if loading %}block{% else %}none{% endif %}">
+          <p>🤔 Thinking...</p>
+        </div>
+        {% if answer %}
+          <div class="answer-container">
+            <h3>Answer:</h3>
+            <div class="answer-content">{{ answer }}</div>
+          </div>
+        {% endif %}
+        {% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+      </div>
+    </div>
+    <input type="checkbox"
+           id="show-more-mainpage"
+           class="show-more-checkbox-stock">
+    <label for="show-more-mainpage"
+           class="show-more-label-stock"
+           style="width: auto">HOW-TO</label>
+    <div class="more-text-stock">
+      <p class="text-center">1. Select your desired documentation from the dropdown</p>
+      <p class="text-center">
+        2. Ask questions about it.
+        <br>
+        Faster Retrieval, Faster Learning!
+      </p>
+    </div>
+    <script>
+    document.getElementById('askForm').addEventListener('submit', function() {
+      // Zeige Loading, verstecke alte Antwort
+      document.getElementById('loading').style.display = 'block';
+
+      const answerContainer = document.querySelector('.answer-container');
+      if (answerContainer) {
+        answerContainer.style.display = 'none';
+      }
+    });
+    </script>
+  {% endblock content %}

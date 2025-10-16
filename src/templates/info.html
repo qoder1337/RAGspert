@@ -4,33 +4,32 @@
 {% endblock title %}
 {% block content %}
   <div id="maincontent">
-    <h1>Dynamic Price-Dashboard</h1>
+    <h1>your personal RAGspert</h1>
     <div class="contcent">
       <div class="childcent">
         {% if request.scope.get('flash_message') %}
           <div class="alert {{ request.scope.get("flash_category") }}">{{ request.scope.get("flash_message") }}</div>
         {% endif %}
         <div class="infodescription">
-          <p class="text-center">your personal RAG Expert</p>
-        </div>
-        <input type="checkbox"
-               id="show-more-mainpage"
-               class="show-more-checkbox-stock">
-        <label for="show-more-mainpage"
-               class="show-more-label-stock"
-               style="width: auto">DETAILS</label>
-        <div class="more-text-stock">
           <p class="text-center">
             1. Add your favourite documentation
             <br>
             to your personal Knowledge Base.
           </p>
-          <p class="text-center">2. give it a name for later reference,</p>
+          <p class="text-center">2. give it a name for later reference.</p>
           <p class="text-center">
             3. Ask questions about it.
             <br>
             Faster Retrieval, Faster Learning!
           </p>
+        </div>
+        <div id="button-cont">
+          <a href="{{ url_for('crawl_form') }}">
+            <button>🕷️ Crawl docs</button>
+          </a>
+          <a href="{{ url_for('ask_form') }}">
+            <button>❓Ask RAGspert</button>
+          </a>
         </div>
       </div>
     </div>

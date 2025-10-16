@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}
+  RAGSpert Index: Start crawling
+{% endblock title %}
+{% block content %}
+  <div id="maincontent">
+    <h1>RAGspert Index: start crawling</h1>
+    <form id="addCrawlerForm"
+          method="POST"
+          action="{{ url_for('crawl_form') }}">
+      <input type="url"
+             class="crawlerInput"
+             name="url"
+             placeholder="Documentation Base-URL"
+             required>
+      <input type="text"
+             class="crawlerInput"
+             name="name"
+             placeholder="Name it"
+             required>
+      <button type="submit">🕷️</button>
+    </form>
+    <div class="contcent">
+      <div class="childcent">
+        {% if message %}
+          <p class="success">{{ message }}</p>
+          <!-- ✅ Auto-refresh Status -->
+          <div id="crawl-status">
+            <p>⏳ Checking status...</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <input type="checkbox"
+           id="show-more-mainpage"
+           class="show-more-checkbox-stock">
+    <label for="show-more-mainpage"
+           class="show-more-label-stock"
+           style="width: auto">HOW-TO</label>
+    <div class="more-text-stock">
+      <p class="text-center">
+        1. Add your favourite documentation
+        <br>
+        to your personal Knowledge Base.
+      </p>
+      <p class="text-center">2. give it a name for later reference,</p>
+      <p class="text-center">
+        3. Ask questions about it.
+        <br>
+        Faster Retrieval, Faster Learning!
+      </p>
+    </div>
+  </div>
+  {% if name %}
+    <script>
+      (async function() {
+        const name = "{{ name }}";
+        console.log("🔍 Starting status polling for:", name);
+
+        if (!name || name === "None") {
+          console.error("❌ No valid name provided");
+          return;
+        }
+
+        async function poll() {
+          console.log("📡 Fetching status...");
+
+          try {
+            const url = `/agent/crawl/status/${encodeURIComponent(name)}`;
+            console.log("URL:", url);
+
+            const res = await fetch(url);
+            console.log("Response status:", res.status);
+
+            if (!res.ok) {
+              console.error("❌ API error:", res.status);
+              document.getElementById('crawl-status').innerHTML =
+                `<p class="error">❌ API Error: ${res.status}</p>`;
+              return;
+            }
+
+            const data = await res.json();
+            console.log("📊 Status data:", data);
+
+            const div = document.getElementById('crawl-status');
+
+            if (data.status === 'running') {
+              div.innerHTML = `
+                <p>🕷️ Crawling... ${data.processed}/${data.total_urls} pages</p>
+                <p>❌ Errors: ${data.errors}</p>
+              `;
+              setTimeout(poll, 2000);
+            }
+            else if (data.status === 'finished') {
+              div.innerHTML = `
+                <p>✅ Crawling completed!</p>
+                <p>📊 Processed: ${data.processed} pages (${data.errors} errors)</p>
+                <div class="contcent" style="margin:12px;"><div class="childcent"><a href="/agent/ask"><button>❓Ask RAGspert</button></a></div></div>
+              `;
+            }
+            else {
+              console.warn("⚠️ Unknown status:", data.status);
+              div.innerHTML = `<p>⏳ Status: ${data.status}</p>`;
+              setTimeout(poll, 2000);
+            }
+
+          } catch (err) {
+            console.error("❌ Fetch error:", err);
+            document.getElementById('crawl-status').innerHTML =
+              `<p class="error">❌ Error: ${err.message}</p>`;
+            setTimeout(poll, 5000);  // Retry in 5s
+          }
+        }
+
+        // Start polling immediately
+        poll();
+      })();
+    </script>
+  {% endif %}
+{% endblock content %}
