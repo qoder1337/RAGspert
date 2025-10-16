@@ -1,28 +1,10 @@
 import asyncio
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
 from src.shared.templates import templates
-from src.agent.rag import RAGAgent
 
 
 agent_route = APIRouter(prefix="/agent", tags=["AGENT"])
-
-
-class AgentQuery(BaseModel):
-    library_name: str
-    query: str
-
-
-class CrawlRequest(BaseModel):
-    url: str
-    name: str
-
-
-# @agent_route.get("/", response_class=HTMLResponse)
-# async def agent_form(request: Request):
-#     """Display the agent interaction form."""
-#     return templates.TemplateResponse("agent.html", {"request": request})
 
 
 @agent_route.get("/crawl", response_class=HTMLResponse)
@@ -77,7 +59,6 @@ async def get_crawl_status(name: str):
 async def ask_form(request: Request):
     """Display ask form with available docs."""
 
-    # Hole verfügbare Docs
     try:
         async with get_db() as session:
             result = await session.execute(
