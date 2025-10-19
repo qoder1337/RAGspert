@@ -12,10 +12,11 @@ from src.utils.llm.gemini_cl import gemini_model
 @dataclass
 class DocumentationDeps:
     sessionmanager_pgvector: DatabaseSessionManager
+    source_filter: str
 
 
 def make_system_prompt(
-    library_name: str = "Python library", language: str = "de"
+    library_name: str = "Python library", language: str = "en"
 ) -> str:
     """Generate system prompt for documentation RAG assistant.
 
@@ -55,12 +56,8 @@ Critical rules:
 """
 
 
-# Verwendung
-system_prompt = make_system_prompt(library_name="FastAPI", language="de")
-
-
 class RAGAgent:
-    def __init__(self, library_name: str = "Python library", language: str = "de"):
+    def __init__(self, library_name: str = "Python library", language: str = "en"):
         self.system_prompt = make_system_prompt(library_name, language)
         self.agent = Agent(
             model=gemini_model,
@@ -68,20 +65,26 @@ class RAGAgent:
             deps_type=DocumentationDeps,
             retries=2,
         )
-        self.agent_deps = DocumentationDeps(
-            sessionmanager_pgvector=sessionmanager_pgvector
-        )
 
         # Register tools
         self.agent.tool(retrieve_relevant_documentation)
         self.agent.tool(list_documentation_pages)
         self.agent.tool(get_page_content)
 
-    async def run(self, query: str):
-        result = await self.agent.run(
-            query,
-            deps=self.agent_deps,
+    async def run(self, query: str, source_filter: str):
+        """
+        Run agent with specific source filter.
+
+        Args:
+            query: User question
+            source_filter: Documentation source (i.e. "Pydantic AI", "FastAPI")
+        """
+        agent_deps = DocumentationDeps(
+            sessionmanager_pgvector=sessionmanager_pgvector,
+            source_filter=source_filter,
         )
+
+        result = await self.agent.run(query, deps=agent_deps)
         return result.output
 
 
@@ -109,7 +112,8 @@ async def retrieve_relevant_documentation(
     try:
         query_embedding = await get_embedding_single(user_query)
 
-        # async with sessionmanager_pgvector.session() as session:
+        clean_source = ctx.deps.source_filter.strip('"')
+
         async with ctx.deps.sessionmanager_pgvector.session() as session:
             result = await session.execute(
                 text("""
@@ -123,7 +127,7 @@ async def retrieve_relevant_documentation(
                 {
                     "query_embedding": json.dumps(query_embedding),
                     "match_count": 5,
-                    "filter": '{"source": "pydantic_ai_docs"}',
+                    "filter": json.dumps({"source": clean_source}),
                 },
             )
 
@@ -146,7 +150,7 @@ async def retrieve_relevant_documentation(
             formatted_chunks.append(chunk_text)
 
         # print(f"{query_embedding=}")
-        print(f"{formatted_chunks=}")
+        # print(f"{formatted_chunks=}")
 
         # Join all chunks with a separator
         return "\n\n---\n\n".join(formatted_chunks)
@@ -168,10 +172,12 @@ async def list_documentation_pages(
     """
     print("list_documentation_pages wird ausgeführt")
     try:
+        clean_source = ctx.deps.source_filter.strip('"')
+
         async with ctx.deps.sessionmanager_pgvector.session() as session:
             stmt = select(SitePage.url).where(text("meta_details->>'source' = :source"))
 
-            result = await session.execute(stmt, {"source": "pydantic_ai_docs"})
+            result = await session.execute(stmt, {"source": clean_source})
 
             urls = sorted(set(row[0] for row in result.fetchall()))
 
@@ -199,6 +205,8 @@ async def get_page_content(
     """
     print("get_page_content wird ausgeführt")
     try:
+        clean_source = ctx.deps.source_filter.strip('"')
+
         async with ctx.deps.sessionmanager_pgvector.session() as session:
             stmt = (
                 select(
@@ -211,13 +219,13 @@ async def get_page_content(
                 .order_by(SitePage.chunk_number)
             )
 
-            result = await session.execute(stmt, {"source": "pydantic_ai_docs"})
+            result = await session.execute(stmt, {"source": clean_source})
             rows = result.fetchall()
 
             print(f"===========\nget_page_content {rows=}")
 
         if not rows:
-            return f"No content found for URL: {url}"
+            return f"No content found for URL: {url} in {clean_source}"
 
         page_title = rows[0][0].split(" - ")[0]
         formatted_content = [f"# {page_title}\n"]
@@ -227,17 +235,7 @@ async def get_page_content(
 
         output = "\n\n".join(formatted_content)
 
-        with open("output.txt", "w", encoding="utf-8") as f:
-            f.write(output)
-
         return output
 
     except Exception as e:
         return f"Error retrieving page content: {str(e)}"
-
-
-# This run function is for standalone testing and can be removed or adapted.
-async def run_test():
-    agent = RAGAgent(library_name="FastAPI", language="de")
-    result = await agent.run("give me the 3rd paragraph of the golfwetten info")
-    print(result)

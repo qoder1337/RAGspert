@@ -1,5 +1,6 @@
 import asyncio
 from src.utils.llm.gemini_cl import gemini_client
+from src.utils.ratelimiter import rate_limiter_gemini_embeddings
 
 
 async def get_embeddings_batch(
@@ -8,41 +9,40 @@ async def get_embeddings_batch(
     dimensions: int = 768,
     batch_size: int = 100,
 ) -> list[list[float]]:
-    """Get embeddings for multiple texts in batches.
-
-    Args:
-        texts: List of texts to embed (max 2048 per batch)
-        task_type: "RETRIEVAL_DOCUMENT" or "QUESTION_ANSWERING"
-        dimensions: Output dimensionality (768, 1536, 3072)
-        batch_size: Texts per API request (max 2048)
-
-    Returns:
-        List of embedding vectors
-    """
-
+    """Get embeddings in batches with automatic rate limiting."""
     all_embeddings = []
 
     for i in range(0, len(texts), batch_size):
         batch = texts[i : i + batch_size]
 
         try:
-            result = await asyncio.to_thread(
-                gemini_client.models.embed_content,
-                model="models/gemini-embedding-001",
-                contents=batch,
-                config={"task_type": task_type, "output_dimensionality": dimensions},
+            embedding_batch = await _get_batch_internal(batch, task_type, dimensions)
+            all_embeddings.extend(embedding_batch)
+
+            print(
+                f"✅ Batch {i // batch_size + 1}/{(len(texts) - 1) // batch_size + 1}"
             )
 
-            batch_embeddings = [emb.values for emb in result.embeddings]
-            all_embeddings.extend(batch_embeddings)
-
         except Exception as e:
-            print(f"Error in batch {i}-{i + batch_size}: {e}")
+            print(f"❌ Error: {e}")
             all_embeddings.extend([[0.0] * dimensions] * len(batch))
 
     return all_embeddings
 
 
+@rate_limiter_gemini_embeddings
+async def _get_batch_internal(batch, task_type, dimensions):
+    """Rate-limited API call."""
+    result = await asyncio.to_thread(
+        gemini_client.models.embed_content,
+        model="gemini-embedding-001",
+        contents=batch,
+        config={"task_type": task_type, "output_dimensionality": dimensions},
+    )
+    return [emb.values for emb in result.embeddings]
+
+
+@rate_limiter_gemini_embeddings
 async def get_embedding_single(
     text: str,
     task_type: str = "QUESTION_ANSWERING",
@@ -52,7 +52,7 @@ async def get_embedding_single(
     try:
         result = await asyncio.to_thread(
             gemini_client.models.embed_content,
-            model="models/gemini-embedding-001",
+            model="gemini-embedding-001",
             contents=text,
             config={"task_type": task_type, "output_dimensionality": dimensions},
         )

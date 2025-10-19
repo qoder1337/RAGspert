@@ -8,17 +8,27 @@
     <form id="addCrawlerForm"
           class="question"
           method="post"
-          action="{{ url_for('crawl_form') }}">
+          action="{{ url_for('ask_question') }}">
+      <select class="crawlerInput" name="source" required>
+        <option value="" disabled selected>Select Documentation</option>
+        {% for doc in available_docs %}
+          <option value="{{ doc }}" {% if doc == source %}selected{% endif %}>{{ doc }}</option>
+        {% endfor %}
+      </select>
       <textarea class="crawlerInput"
                 rows="6"
                 name="question"
                 placeholder="Your Question here"
                 required></textarea>
-      <select class="crawlerInput" name="source" required>
-        <option value="" disabled selected>Select Documentation</option>
-        {% for doc in available_docs %}<option value="{{ doc }}">{{ doc }}</option>{% endfor %}
-      </select>
-      <button type="submit">❓ ASK</button>
+      <label>
+        <input type="checkbox"
+               style="width: auto"
+               name="use_german"
+               value="true"
+               {% if use_german %}checked{% endif %} />
+        ask & answer in german
+      </label>
+      <button type="submit" class="btn">❓ ASK</button>
     </form>
     <div class="contcent">
       <div class="childcent">
@@ -27,12 +37,16 @@
           <p>🤔 Thinking...</p>
         </div>
         {% if answer %}
-          <div class="answer-container">
-            <h3>Answer:</h3>
-            <div class="answer-content">{{ answer }}</div>
+          <div id="addCrawlerForm" style="display: block;">
+            <h2>Answer</h2>
+            <div class="answer-container">{{ answer|safe }}</div>
           </div>
         {% endif %}
-        {% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+        {% if error %}
+          <div id="addCrawlerForm">
+            <div class="error-box">{{ error }}</div>
+          {% endif %}
+        </div>
       </div>
     </div>
     <input type="checkbox"
@@ -49,8 +63,9 @@
         Faster Retrieval, Faster Learning!
       </p>
     </div>
-    <script>
-    document.getElementById('askForm').addEventListener('submit', function() {
+  </div>
+  <script>
+    document.getElementById('addCrawlerForm').addEventListener('submit', function() {
       // Zeige Loading, verstecke alte Antwort
       document.getElementById('loading').style.display = 'block';
 
@@ -59,5 +74,5 @@
         answerContainer.style.display = 'none';
       }
     });
-    </script>
-  {% endblock content %}
+  </script>
+{% endblock content %}

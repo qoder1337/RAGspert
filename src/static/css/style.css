@@ -14,13 +14,20 @@ form.question {
   gap: 8px;
 }
 
-/* Gleiches width für alle relevanten Felder */
 form.question select,
 form.question textarea,
 form.question input,
-form.question button {
+form.question .btn {
   width: 100%;
-  /* Falls du speziellere Breiten für den Button willst, nutze align-self: flex-start oder ändere width für button darunter */
+}
+
+select.crawlerInput {
+  background-color: #e9e9ed;
+  color: #333;
+}
+.answer-container {
+  width: 92%;
+  background-color: #e2e2e2;
 }
 
 body {
@@ -76,20 +83,6 @@ body {
   margin: 30px;
 }
 
-#button-cont {
-  text-align: center;
-}
-
-#button-cont button {
-  cursor: pointer;
-  margin: 12px;
-  padding: 24px;
-  font-size: 3rem;
-  border: 2px solid #222;
-  box-shadow: 4px 4px 6px #333;
-  transition: 0.5s ease;
-}
-
 .contcent {
   display: flex;
   justify-content: center;
@@ -134,39 +127,12 @@ ul.detailview li {
   padding: 1px;
 }
 
-#dashboardContainer {
-  display: grid;
-  grid-template-columns: repeat(
-    3,
-    minmax(33%, 1fr)
-  ); /* Ursprünglich Mindestens 500px, maximal 1fr */
-  gap: 10px; /* Abstand zwischen den Elementen */
-  margin: auto;
-}
-
-.chartContainer {
-  box-sizing: border-box; /* Verhindert, dass Padding die Breite beeinflusst */
-  padding: 6px;
-  margin: 8px auto;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 96%;
-}
-/* .chartContainer { width: 80%; height: 300px; margin: 20px auto; background-color: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); } */
 h1 {
   text-align: right;
   color: #283444;
   font-size: 0.8em;
   padding-right: 24px;
   text-decoration: underline #ddccb8;
-}
-.livePrice {
-  text-align: center;
-  font-size: 16px;
-  font-weight: bold;
-  color: #283444;
-  margin-bottom: 10px;
 }
 
 #addCrawlerForm {
@@ -190,30 +156,39 @@ h1 {
   color: transparent;
   visibility: hidden;
 }
-button {
+.btn {
   padding: 15px;
   font-size: 16px;
   cursor: pointer;
   border: 0;
   background-color: #283444;
   color: #fff;
+  text-decoration: none;
+  display: inline-block;
 }
-button:hover {
+
+.btn:hover {
   background: #000;
 }
 
-#addTickerForm button {
-  max-width: 60px;
-  flex-grow: 0;
+#button-cont {
+  /* text-align: center; */
+  display: flex;
+  gap: 12px;
 }
 
-.stock-header button {
-  width: 50px;
-  height: 50px;
+#button-cont .btn {
+  cursor: pointer;
+  margin: 12px;
+  padding: 24px;
+  font-size: 3rem;
+  border: 2px solid #222;
+  box-shadow: 4px 4px 6px #333;
+  transition: 0.5s ease;
 }
 
 .crawlerInput,
-#addCrawlerForm button {
+#addCrawlerForm .btn {
   flex-grow: 1; /* Füllt den verfügbaren Platz */
   margin: 0;
   padding: 20px; /* Fügt Innenabstand hinzu */
@@ -221,26 +196,6 @@ button:hover {
   font-size: 22px; /* Schriftgröße */
   text-align: center;
   outline: 0;
-}
-
-.closeButton {
-  position: absolute;
-  /* top: 10px; */
-  right: 10px;
-  font-size: 20px;
-  cursor: pointer;
-  color: #888;
-  border-radius: 4px;
-  margin: 4px;
-  padding: 2px;
-  background-color: #ddccb8;
-  color: #283444;
-}
-.closeButton:hover {
-  color: #fff;
-}
-.chartContainer {
-  position: relative;
 }
 
 #flashMessage {
@@ -254,35 +209,6 @@ button:hover {
 
 #flashMessage.fade-out {
   opacity: 0;
-}
-
-.stock-header {
-  display: flex; /* Flexbox für horizontale Anordnung */
-  align-items: center; /* Vertikal zentrieren */
-  gap: 10px; /* Abstand zwischen den Elementen */
-}
-
-.stock-body {
-  display: grid; /* Flexbox für horizontale Anordnung */
-  align-items: center; /* Vertikal zentrieren */
-  gap: 10px; /* Abstand zwischen den Elementen */
-  grid-template-columns: 1fr 6fr;
-}
-
-.stock-body button,
-.stock-body label,
-.stock-body p,
-.stock-body img,
-.stock-header button,
-.stock-header label,
-.stock-header p,
-.stock-header img {
-  margin-right: 10px; /* Abstand zwischen den Steuerungselementen und dem Bild */
-}
-
-.detail-data-logo {
-  width: 50px; /* Begrenze die Größe des Logos */
-  height: 50px; /* Halte die Bildverhältnisse */
 }
 
 /* SHOWMORE */
@@ -342,31 +268,6 @@ button:hover {
   content: " info";
 }
 
-/* .alert {
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.alert.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.alert.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.alert.info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-} */
-
 /* Media Query für kleinere Bildschirme */
 @media (max-width: 1000px) {
   #maincontent {
@@ -377,24 +278,17 @@ button:hover {
     grid-template-columns: 1fr; /* Eine Spalte */
   }
   #addCrawlerForm {
-    left: 0.5%;
-    right: 0.5%;
     padding: 4px;
-    margin: 20px auto; /* Zentriert das Formular */
+    margin: 20px 0.5%; /* Zentriert das Formular */
     position: relative;
     border-radius: 0;
   }
   .crawlerInput,
-  #addCrawlerForm button {
+  #addCrawlerForm .btn {
     font-size: 14px; /* Kleinere Schriftgröße für kleinere Bildschirme */
     padding: 8px; /* Kleinere Polsterung für kleinere Bildschirme */
   }
   h1 {
     font-size: 0.65em;
-  }
-}
-@media (min-width: 1001px) and (max-width: 1500px) {
-  #dashboardContainer {
-    grid-template-columns: repeat(2, 1fr); /* Zwei gleich breite Spalten */
   }
 }

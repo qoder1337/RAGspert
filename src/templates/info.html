@@ -23,13 +23,17 @@
             Faster Retrieval, Faster Learning!
           </p>
         </div>
+        {# <div id="button-cont">
+          <form action="{{ url_for('crawl_form') }}" method="get" style="display: inline">
+            <button type="submit">🕷️ Crawl docs</button>
+          </form>
+          <form action="{{ url_for('ask_form') }}" method="get" style="display: inline">
+            <button type="submit">❓Ask RAGspert</button>
+          </form>
+        </div> #}
         <div id="button-cont">
-          <a href="{{ url_for('crawl_form') }}">
-            <button>🕷️ Crawl docs</button>
-          </a>
-          <a href="{{ url_for('ask_form') }}">
-            <button>❓Ask RAGspert</button>
-          </a>
+          <a href="{{ url_for('crawl_form') }}" class="btn">🕷️ Crawl docs</a>
+          <a href="{{ url_for('ask_form') }}" class="btn">❓ Ask RAGspert</a>
         </div>
       </div>
     </div>

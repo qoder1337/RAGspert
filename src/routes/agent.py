@@ -2,6 +2,10 @@ import asyncio
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse
 from src.shared.templates import templates
+from src.crud.agent import show_docs
+from src.database import DBSessionDep_pgvector
+from src.agent.rag import RAGAgent
+from markdown import markdown
 
 
 agent_route = APIRouter(prefix="/agent", tags=["AGENT"])
@@ -56,17 +60,11 @@ async def get_crawl_status(name: str):
 
 
 @agent_route.get("/ask", response_class=HTMLResponse, name="ask_form")
-async def ask_form(request: Request):
+async def ask_form(request: Request, db: DBSessionDep_pgvector):
     """Display ask form with available docs."""
 
     try:
-        async with get_db() as session:
-            result = await session.execute(
-                select(distinct(SitePage.meta_details["source"].astext)).where(
-                    SitePage.meta_details["source"].astext.isnot(None)
-                )
-            )
-            available_docs = [row[0] for row in result.fetchall()]
+        available_docs = await show_docs(db)
     except Exception as e:
         print(f"Error loading docs: {e}")
         available_docs = []
@@ -83,35 +81,30 @@ async def ask_form(request: Request):
 
 @agent_route.post("/ask", response_class=HTMLResponse)
 async def ask_question(
-    request: Request, source: str = Form(...), question: str = Form(...)
+    request: Request,
+    db: DBSessionDep_pgvector,
+    source: str = Form(...),
+    question: str = Form(...),
+    use_german: bool = Form(False),
 ):
-    """Process question and return answer in same page."""
-
-    # Hole Docs-Liste für Dropdown
-    async with get_db() as session:
-        result = await session.execute(
-            select(distinct(SitePage.meta_details["source"].astext)).where(
-                SitePage.meta_details["source"].astext.isnot(None)
-            )
-        )
-        available_docs = [row[0] for row in result.fetchall()]
+    """Process question and return answer."""
 
     try:
-        print(f"❓ Question: '{question}' for source: '{source}'")
+        available_docs = await show_docs(db)
+    except Exception as e:
+        print(e)
+        available_docs = []
 
-        # ✅ RAG Agent aufrufen
-        answer_data = await search_and_answer(question=question, source_filter=source)
+    try:
+        language = "de" if use_german else "en"
 
-        # answer_data kann sein: {"answer": "...", "sources": [...]}
-        # oder nur ein String
-        if isinstance(answer_data, dict):
-            answer = answer_data.get("answer", "")
-            sources = answer_data.get("sources", [])
-        else:
-            answer = answer_data
-            sources = []
+        agent = RAGAgent(library_name=source, language=language)
+        answer = await agent.run(
+            query=question,
+            source_filter=source,
+        )
 
-        print(f"✅ Answer generated: {len(answer)} chars")
+        answer_html = markdown(answer, extensions=["fenced_code", "codehilite"])
 
         return templates.TemplateResponse(
             "ask.html",
@@ -120,8 +113,8 @@ async def ask_question(
                 "available_docs": available_docs,
                 "question": question,
                 "source": source,
-                "answer": answer,  # ✅ Antwort im Template
-                "sources": sources,
+                "use_german": use_german,
+                "answer": answer_html,
             },
         )
 

@@ -16,18 +16,34 @@ def get_gemini_client() -> genai.Client:
 
 gemini_client = get_gemini_client()
 gemini_provider = GoogleProvider(api_key=api_key)
-model_name = "gemini-2.5-flash-lite"
+model_name = "gemini-2.0-flash-lite"
+model_name_ask = "gemini-2.5-flash"
 gemini_model = GoogleModel(model_name=model_name, provider=gemini_provider)
 
 
 async def gemini_response(
-    system_prompt: str, prompt: str, response_mime_type: str = "text/plain"
+    system_prompt: str,
+    prompt: str,
+    response_mime_type: str = "text/plain",
+    response_schema: dict = None,
+    temperature: float = 1.0,
+    max_output_tokens: int = 2048,
 ):
+    """Enhanced Gemini response with configurable parameters."""
+
+    config = types.GenerateContentConfig(
+        system_instruction=system_prompt,
+        response_mime_type=response_mime_type,
+        temperature=temperature,
+        max_output_tokens=max_output_tokens,
+    )
+
+    if response_schema:
+        config.response_schema = response_schema
+
     response = await gemini_client.aio.models.generate_content(
-        model=model_name,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt, response_mime_type=response_mime_type
-        ),
+        model=model_name_ask,
+        config=config,
         contents=[prompt],
     )
 

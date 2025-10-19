@@ -36,11 +36,10 @@ async def process_url(
             print(fit_md)
 
             ### PROCESS, VECTORIZE UND SAVE TO DB with source_name
-            # await process_and_store_document(
-            #     url=url, markdown=fit_md, source_name=source_name
-            # )
+            await process_and_store_document(
+                url=url, markdown=fit_md, source_name=source_name
+            )
 
-            # ✅ Update Status
             crawl_status.update(source_name, success=True)
 
         else:
