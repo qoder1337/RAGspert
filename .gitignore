@@ -189,4 +189,7 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+### EIGENE
+unbenutzt/
 compose-test.yaml

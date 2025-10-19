@@ -10,9 +10,6 @@ class AppSettings(BaseSettings):
     APP_ENV: str
     GEMINI_API_KEY: str
     EMBED_STORE: str
-    # DEBUG: bool
-    # RELOAD: bool
-    # APP_NAME: str
 
     model_config = SettingsConfigDict(
         env_file=os.path.join(BASEDIR, ".env"),

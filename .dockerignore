@@ -110,3 +110,8 @@ logs/
 
 # VS Code
 .vscode/
+
+
+# eigene
+unbenutzt/
+compose-test.yaml
