@@ -189,22 +189,24 @@ h1 {
 
 .crawlerInput,
 #addCrawlerForm .btn {
-  flex-grow: 1; /* Füllt den verfügbaren Platz */
-  margin: 0;
-  padding: 20px; /* Fügt Innenabstand hinzu */
-  border: 2px solid #283444; /* Fügt eine leichte Umrandung hinzu */
-  font-size: 22px; /* Schriftgröße */
+  padding: 20px;
+  border: 2px solid #283444;
+  font-size: 22px;
   text-align: center;
   outline: 0;
+  box-sizing: border-box;
+  width: 100%;
+  display: block;
 }
 
 #flashMessage {
   text-align: center;
   opacity: 1;
   transition: opacity 1s ease-out;
-  color: #ddccb8;
+  color: #f3f3f3;
   font-weight: 900;
-  text-decoration: overline #283444;
+  background-color: #283444;
+  padding: 4px;
 }
 
 #flashMessage.fade-out {
@@ -283,10 +285,34 @@ h1 {
     position: relative;
     border-radius: 0;
   }
-  .crawlerInput,
+  /* .crawlerInput,
   #addCrawlerForm .btn {
-    font-size: 14px; /* Kleinere Schriftgröße für kleinere Bildschirme */
-    padding: 8px; /* Kleinere Polsterung für kleinere Bildschirme */
+    font-size: 12px;
+    padding: 4px;
+  } */
+  .crawlerInput {
+    font-size: 14px;
+    padding: 6px;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  #addCrawlerForm {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #addCrawlerForm .btn {
+    width: 100%;
+    display: block;
+    margin: 2px;
+    padding: 4px;
+    font-size: 1.4rem;
+  }
+
+  #button-cont .btn {
+    margin: 2px;
+    padding: 4px;
+    font-size: 1.4rem;
   }
   h1 {
     font-size: 0.65em;

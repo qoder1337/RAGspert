@@ -14,3 +14,9 @@ async def show_docs(db: AsyncSession) -> list[str]:
     )
 
     return [row[0] for row in result.fetchall()]
+
+
+async def url_exists(db: AsyncSession, url: str) -> bool:
+    """Check if URL was already crawled."""
+    result = await db.execute(select(1).where(SitePage.url == url).limit(1))
+    return result.scalar() is not None

@@ -1,0 +1,2 @@
+FROM pgvector/pgvector:pg17
+COPY postgres_cmd/01-init.sql /docker-entrypoint-initdb.d/01-init.sql

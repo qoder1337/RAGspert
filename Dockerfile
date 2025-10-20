@@ -69,19 +69,22 @@ RUN apt-get update \
         libxrandr2 \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Non-root user
-RUN groupadd -r appgroup && useradd -r -g appgroup -u 10001 appuser
+# Non-root user MIT Home-Directory
+RUN groupadd -r appgroup && \
+    useradd -r -g appgroup -u 10001 -m -d /home/appuser appuser
 
 WORKDIR /code
 
 COPY --from=builder --chown=appuser:appgroup /code /code
 
-# Create Log-Dir
-RUN mkdir -p /code/logs && chown -R appuser:appgroup /code/logs
+# Create all necessary directories
+RUN mkdir -p /code/logs /code/.crawl4ai && \
+    chown -R appuser:appgroup /code /home/appuser
 
 ENV PATH="/code/.venv/bin:$PATH" \
     PLAYWRIGHT_BROWSERS_PATH=/code/.venv/lib/python3.13/site-packages/playwright/driver/browsers \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    CRAWL4AI_BASE_DIRECTORY=/code/.crawl4ai
 
 USER appuser
 

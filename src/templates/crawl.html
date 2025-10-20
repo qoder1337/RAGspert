@@ -5,13 +5,14 @@
 {% block content %}
   <div id="maincontent">
     <h1>RAGspert Index: start crawling</h1>
+    {% if flash_msg %}<div id="flashMessage">{{ flash_msg }}</div>{% endif %}
     <form id="addCrawlerForm"
           method="POST"
           action="{{ url_for('crawl_form') }}">
       <input type="url"
              class="crawlerInput"
              name="url"
-             placeholder="Documentation Base-URL"
+             placeholder="Documentation URL"
              required>
       <input type="text"
              class="crawlerInput"
@@ -29,6 +30,16 @@
             <p>⏳ Checking status...</p>
           </div>
         {% endif %}
+      </div>
+    </div>
+    <div class="contcent">
+      <div class="childcent">
+        <p>EXAMPLES:</p>
+        <ul>
+          <li>"https://python-markdown.github.io/" - "python-markdown"</li>
+          <li>"https://www.python-httpx.org/" - "HTTPX"</li>
+          <li>"https://curl-cffi.readthedocs.io/en/latest/" - "curl-cffi"</li>
+        </ul>
       </div>
     </div>
     <input type="checkbox"

@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse
 from src.shared.templates import templates
-from src.crud.agent import show_docs
+from src.crud.agent import show_docs, url_exists
 from src.database import DBSessionDep_pgvector
 from src.agent.rag import RAGAgent
 from markdown import markdown
@@ -18,11 +18,18 @@ async def crawl_form(request: Request):
 
 
 @agent_route.post("/crawl", response_class=HTMLResponse)
-async def start_crawl(request: Request, url: str = Form(...), name: str = Form(...)):
+async def start_crawl(
+    request: Request,
+    db: DBSessionDep_pgvector,
+    url: str = Form(...),
+    name: str = Form(...),
+):
     """Start crawling documentation."""
     from src.utils.crawl_site import init_crawling
 
     try:
+        print(f"🔍 Checking URL: {url}")
+
         if not url.startswith(("http://", "https://")):
             return templates.TemplateResponse(
                 "crawl.html",
@@ -31,7 +38,18 @@ async def start_crawl(request: Request, url: str = Form(...), name: str = Form(.
                     "error": "❌ URL must start with http:// oder https://",
                 },
             )
-        # TODO: Store name in metadata
+
+        if await url_exists(db, url):
+            print("already crawled")
+            return templates.TemplateResponse(
+                "crawl.html",
+                {
+                    "request": request,
+                    "flash_msg": "URL already crawled: go for 'ask'",
+                    "error": "Already crawled",
+                },
+            )
+
         asyncio.create_task(init_crawling(url_or_sitemap=url, source_name=name))
 
         return templates.TemplateResponse(
