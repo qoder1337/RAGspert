@@ -19,6 +19,7 @@ gemini_provider = GoogleProvider(api_key=api_key)
 model_name = "gemini-2.0-flash-lite"
 model_name_ask = "gemini-2.5-flash"
 gemini_model = GoogleModel(model_name=model_name, provider=gemini_provider)
+gemini_model_ask = GoogleModel(model_name=model_name_ask, provider=gemini_provider)
 
 
 async def gemini_response(
@@ -28,6 +29,7 @@ async def gemini_response(
     response_schema: dict = None,
     temperature: float = 1.0,
     max_output_tokens: int = 2048,
+    model: str = model_name,
 ):
     """Enhanced Gemini response with configurable parameters."""
 
@@ -42,7 +44,7 @@ async def gemini_response(
         config.response_schema = response_schema
 
     response = await gemini_client.aio.models.generate_content(
-        model=model_name_ask,
+        model=model,
         config=config,
         contents=[prompt],
     )

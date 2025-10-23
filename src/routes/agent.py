@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse
 from src.shared.templates import templates
 from src.crud.agent import show_docs, url_exists
 from src.database import DBSessionDep_pgvector
-from src.agent.rag import RAGAgent
+from src.agent.rag import RAGAgent, AnswerAgent
 from markdown import markdown
 
 
@@ -116,10 +116,18 @@ async def ask_question(
     try:
         language = "de" if use_german else "en"
 
-        agent = RAGAgent(library_name=source, language=language)
-        answer = await agent.run(
+        tool_agent = RAGAgent(library_name=source, language=language)
+        tool_result = await tool_agent.run(
             query=question,
             source_filter=source,
+        )
+
+        answer_agent = AnswerAgent(library_name=source, language=language)
+
+        answer = await answer_agent.run(
+            query=question,
+            source_filter=source,
+            message_history=tool_result.new_messages(),  # Passes Tool-Results
         )
 
         answer_html = markdown(answer, extensions=["fenced_code", "codehilite"])

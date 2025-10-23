@@ -6,7 +6,7 @@ from src.database.models.agent_sitepage import SitePage
 from sqlalchemy.future import select
 from sqlalchemy import text
 from src.utils.text_embedder import get_embedding_single
-from src.utils.llm.gemini_cl import gemini_model
+from src.utils.llm.gemini_cl import gemini_model, model_name_ask
 
 
 @dataclass
@@ -60,16 +60,21 @@ class RAGAgent:
     def __init__(self, library_name: str = "Python library", language: str = "en"):
         self.system_prompt = make_system_prompt(library_name, language)
         self.agent = Agent(
-            model=gemini_model,
+            model=gemini_model,  # flash-lite for Tools
             system_prompt=self.system_prompt,
             deps_type=DocumentationDeps,
             retries=2,
+            tools=[
+                retrieve_relevant_documentation,
+                list_documentation_pages,
+                get_page_content,
+            ],
         )
 
-        # Register tools
-        self.agent.tool(retrieve_relevant_documentation)
-        self.agent.tool(list_documentation_pages)
-        self.agent.tool(get_page_content)
+        # Register tools (old way)
+        # self.agent.tool(retrieve_relevant_documentation)
+        # self.agent.tool(list_documentation_pages)
+        # self.agent.tool(get_page_content)
 
     async def run(self, query: str, source_filter: str):
         """
@@ -88,13 +93,41 @@ class RAGAgent:
         return result.output
 
 
-# The tools need to be defined before they are registered.
+class AnswerAgent:
+    """Agent for final Answer with better Model."""
+
+    def __init__(self, library_name: str = "Python library", language: str = "en"):
+        self.system_prompt = make_system_prompt(library_name, language)
+
+        self.agent = Agent(
+            model=model_name_ask,
+            system_prompt=self.system_prompt,
+            deps_type=DocumentationDeps,
+        )
+
+    async def run(self, query: str, source_filter: str, message_history):
+        agent_deps = DocumentationDeps(
+            sessionmanager_pgvector=sessionmanager_pgvector,
+            source_filter=source_filter,
+        )
+
+        # message_history contains all Tool-Calls
+        result = await self.agent.run(
+            query,
+            deps=agent_deps,
+            message_history=message_history,  # Context from RAGAgent
+        )
+        return result
+
+
+# OLD WAY
 # Let's define a placeholder for the agent that the decorators can use.
 # This will be replaced inside the RAGAgent class.
-documentation_expert = Agent()
+
+### documentation_expert = Agent() # old way
 
 
-@documentation_expert.tool
+# @documentation_expert.tool
 async def retrieve_relevant_documentation(
     ctx: RunContext[DocumentationDeps] = None, user_query: str = None
 ) -> str:
@@ -156,7 +189,7 @@ async def retrieve_relevant_documentation(
         return f"Error retrieving documentation: {str(e)}"
 
 
-@documentation_expert.tool
+# @documentation_expert.tool
 async def list_documentation_pages(
     ctx: RunContext[DocumentationDeps] = None,
 ) -> list[str]:
@@ -183,7 +216,7 @@ async def list_documentation_pages(
         return []
 
 
-@documentation_expert.tool
+# @documentation_expert.tool
 async def get_page_content(
     ctx: RunContext[DocumentationDeps] = None, url: str = None
 ) -> str:
