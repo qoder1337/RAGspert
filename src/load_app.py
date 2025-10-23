@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from fastapi import FastAPI, Request, HTTPException, Response
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -31,12 +31,6 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    ### i.e. load precached stuff into the appstate
-    # globals_mapping = globals_mapping_loader()
-    # async with sessionmanager_local.session() as db:
-    #     app.state.data_cache = await preload_data_cache(db)
-    #     app.state.AVAILABLE_NEWS_TABLES = {k for k in globals_mapping if "news" in k}
-
     yield
 
     # Shutdown logic HERE
@@ -44,8 +38,6 @@ async def lifespan(app: FastAPI):
     # close DB Sessions
     if sessionmanager_pgvector._engine is not None:
         await sessionmanager_pgvector.close()
-    # if sessionmanager_external._engine is not None:
-    #     await sessionmanager_external.close()
 
 
 ### APP INIT
@@ -66,32 +58,6 @@ async def add_current_time(request: Request, call_next):
     request.state.current_time = get_berlin_time()
     response = await call_next(request)
     return response
-
-
-##### API KEY AUTH
-# auth_middleware
-# EXCLUDED_PATHS = ("/docs", "/openapi.json", "/redoc", "/favicon.ico")
-
-
-# @app.middleware("http")
-# async def auth_middleware(request: Request, call_next):
-#     path = request.url.path
-
-#     # Prefix-Check
-#     if path.startswith(EXCLUDED_PATHS):
-#         return await call_next(request)
-
-#     # Header case-insensitive normalisiert
-#     api_key = request.headers.get("x-api-key")
-
-#     if not api_key or api_key != PRIVATE_API_KEY:  # <- Explicit None-Check
-#         return Response(
-#             content='{"detail":"Unauthorized"}',
-#             status_code=401,
-#             media_type="application/json",
-#         )
-
-#     return await call_next(request)
 
 
 ### ADD ROUTES

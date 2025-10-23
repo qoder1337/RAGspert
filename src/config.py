@@ -50,7 +50,3 @@ config_setting = {
 
 choose_setting = os.getenv("APP_ENV", "development")
 SET_CONF = config_setting[choose_setting]()
-
-
-# _env = AppSettings().APP_ENV
-# SET_CONF = config_setting[_env]()
