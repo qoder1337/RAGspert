@@ -95,9 +95,9 @@ async def get_title_and_summary(chunk: str, url: str) -> dict[str, str]:
             system_prompt=system_prompt,
             prompt=f"URL: {url}\n\nContent:\n{chunk[:800]}",
             response_mime_type="application/json",  # ✅ JSON Mode
-            response_schema=json_schema,  # ✅ Schema erzwingen
-            temperature=0.3,  # ✅ Deterministischer
-            max_output_tokens=500,  # ✅ Kurze Antwort
+            response_schema=json_schema,  # ✅ enforce Schema
+            temperature=0.3,  # ✅ Deterministic Response
+            max_output_tokens=500,  # ✅ Short answer
         )
 
         parsed = json.loads(response_text)

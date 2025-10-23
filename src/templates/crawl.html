@@ -25,7 +25,6 @@
       <div class="childcent">
         {% if message %}
           <p class="success">{{ message }}</p>
-          <!-- ✅ Auto-refresh Status -->
           <div id="crawl-status">
             <p>⏳ Checking status...</p>
           </div>
@@ -106,7 +105,7 @@
               div.innerHTML = `
                 <p>✅ Crawling completed!</p>
                 <p>📊 Processed: ${data.processed} pages (${data.errors} errors)</p>
-                <div class="contcent" style="margin:12px;"><div class="childcent"><a href="/agent/ask"><button>❓Ask RAGspert</button></a></div></div>
+                <div class="contcent" style="margin:12px;"><div class="childcent"><div id="button-cont"><a href="/agent/ask" class="btn">❓ Ask RAGspert</a></div></div></div>
               `;
             }
             else {
@@ -123,7 +122,6 @@
           }
         }
 
-        // Start polling immediately
         poll();
       })();
     </script>

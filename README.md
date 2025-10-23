@@ -1,18 +1,16 @@
 # RAGspert
-
-A work in progress DEMO of best-practices to implement a local RAG into a Frontier-LLM.
-
+A work in progress DEMO of best-practices to implement a personal local RAG into a Frontier-LLM.
 
 ## ! Important !
-In real prodcution, you should most likely go with three separate dbs for prod, dev, test instead of my TABLE_PREFIX approach.
+In real production, you should most likely go with three separate dbs for prod, dev, test instead of my TABLE_PREFIX approach.
 
 ## What's in it?
-FastAPI, PostgreSQL (with pgvector), Gemini (2.5 Flash-Lite & Embedding), pydantic AI, Crawl4AI
+FastAPI, PostgreSQL (with pgvector), Gemini (Gemini Embedding, Gemini 2.0 Flash-Lite for summaries in pgvector & Gemini 2.5 Flash-Lite for Q&A), pydantic AI, Crawl4AI, curl-cffi, python-markdown
 
 ## Installation
 - uv sync
 - rename example.env to .env and add external DB credentials and API-Key (optional)
 
 ## TODO
-
-- add Ollama and/or vllm for more privacy
+- add Ollama and/or vllm for more privacy-focused llm inference
+- user-based accounts

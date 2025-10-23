@@ -102,13 +102,12 @@ async def retrieve_relevant_documentation(
     Retrieve relevant documentation chunks based on the query with RAG.
 
     Args:
-        ctx: The context including the Supabase client and OpenAI client
+        ctx: The context including the pbvector/db client and gemini/llm client
         user_query: The user's question or query
 
     Returns:
         A formatted string containing the top 5 most relevant documentation chunks
     """
-    print("retrieve_relevant_documentation Wird ausgeführt")
     try:
         query_embedding = await get_embedding_single(user_query)
 
@@ -149,9 +148,6 @@ async def retrieve_relevant_documentation(
 """
             formatted_chunks.append(chunk_text)
 
-        # print(f"{query_embedding=}")
-        # print(f"{formatted_chunks=}")
-
         # Join all chunks with a separator
         return "\n\n---\n\n".join(formatted_chunks)
 
@@ -165,12 +161,11 @@ async def list_documentation_pages(
     ctx: RunContext[DocumentationDeps] = None,
 ) -> list[str]:
     """
-    Retrieve a list of all available Pydantic AI documentation pages.
+    Retrieve a list of all available documentation pages of the desired library.
 
     Returns:
         List[str]: List of unique URLs for all documentation pages
     """
-    print("list_documentation_pages wird ausgeführt")
     try:
         clean_source = ctx.deps.source_filter.strip('"')
 
@@ -181,7 +176,6 @@ async def list_documentation_pages(
 
             urls = sorted(set(row[0] for row in result.fetchall()))
 
-        # print(urls)
         return urls
 
     except Exception as e:
@@ -197,13 +191,12 @@ async def get_page_content(
     Retrieve the full content of a specific documentation page by combining all its chunks.
 
     Args:
-        ctx: The context including the Supabase client
+        ctx: The context including the db client
         url: The URL of the page to retrieve
 
     Returns:
         str: The complete page content with all chunks combined in order
     """
-    print("get_page_content wird ausgeführt")
     try:
         clean_source = ctx.deps.source_filter.strip('"')
 

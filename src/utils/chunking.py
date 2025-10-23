@@ -19,7 +19,7 @@ class ProcessedChunk:
     embedding: list[float]
 
 
-# ### NEU MIT CODEBLOCK RESPECT
+# ### NEW: WITH CODEBLOCK RESPECT
 @dataclass
 class TextSegment:
     content: str
@@ -109,8 +109,6 @@ def chunk_text(
                 merged_chunks.append(chunk)
 
         return merged_chunks
-
-    ###### NEW
 
     # Split text into regular text and code block segments
     segments = split_into_segments(text)
