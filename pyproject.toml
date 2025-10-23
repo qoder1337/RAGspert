@@ -1,7 +1,7 @@
 [project]
 name = "RAGspert"
 version = "0.7.0"
-description = "Your async FastAPI starter Kit; without the fluff!"
+description = "Your personal Knowledge Base for documentations. RAGspert!"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
