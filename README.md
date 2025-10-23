@@ -12,5 +12,6 @@ FastAPI, PostgreSQL (with pgvector), Gemini (Gemini Embedding, Gemini 2.0 Flash-
 - rename example.env to .env and add external DB credentials and API-Key (optional)
 
 ## TODO
+- add crawling fallbacks, in case sitemap is not existing
 - add Ollama and/or vllm for more privacy-focused llm inference
 - user-based accounts
