@@ -1,5 +1,5 @@
 # RAGspert
-A work in progress DEMO of best-practices to implement a personal local RAG into a Frontier-LLM.
+A DEMO of best-practices to implement a personal local RAG into a Frontier-LLM.
 
 ## ! Important !
 In real production, you should most likely go with three separate dbs for prod, dev, test instead of my TABLE_PREFIX approach.
