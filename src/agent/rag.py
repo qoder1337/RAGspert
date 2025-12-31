@@ -90,7 +90,8 @@ class RAGAgent:
         )
 
         result = await self.agent.run(query, deps=agent_deps)
-        return result.output
+        # return result.output
+        return result
 
 
 class AnswerAgent:

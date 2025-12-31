@@ -3,91 +3,58 @@
 # ==========================================
 FROM python:3.13-slim AS builder
 
-# Build-Dependencies in einem Layer
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        gcc \
-        libpq-dev \
-        curl \
-        git \
-    && rm -rf /var/lib/apt/lists/*
-
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev curl git && rm -rf /var/lib/apt/lists/*
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 WORKDIR /code
-
 COPY pyproject.toml uv.lock ./
 
-# Dependencies + Bytecode Compilation + Cache Cleanup
-RUN uv sync --frozen --no-editable --compile-bytecode --no-cache-dir \
-    && find /code/.venv -type d -name "__pycache__" -exec rm -rf {} + \
-    && rm -rf /root/.cache
+# Dependencies installieren
+RUN uv sync --frozen --no-editable --compile-bytecode --no-cache-dir
 
 COPY . /code
 
-# Playwright + Cleanup
-RUN .venv/bin/python -m playwright install chromium \
-    && rm -rf /root/.cache/ms-playwright/firefox* \
-              /root/.cache/ms-playwright/webkit* \
-              /tmp/*
+# WICHTIG: Wir zwingen Playwright, die Browser IN DAS PROJEKT zu laden
+# (anstatt nach /root/.cache, was wir später verlieren würden)
+ENV PLAYWRIGHT_BROWSERS_PATH=/code/.venv/lib/python3.13/site-packages/playwright/driver/browsers
 
-# Build-Dependencies entfernen
-RUN apt-get purge -y --auto-remove gcc curl git \
-    && rm -rf /var/lib/apt/lists/*
+# Browser herunterladen (landet jetzt im venv!)
+RUN .venv/bin/python -m playwright install chromium
+
+# Cleanup (Firefox/Webkit löschen, um Platz zu sparen)
+RUN rm -rf /code/.venv/lib/python3.13/site-packages/playwright/driver/browsers/firefox* \
+           /code/.venv/lib/python3.13/site-packages/playwright/driver/browsers/webkit*
+
 
 # ==========================================
 # FINAL STAGE
 # ==========================================
 FROM python:3.13-slim
 
-# Runtime-Dependencies (minimal)
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        libpq5 \
-        fonts-liberation \
-        libasound2 \
-        libatk-bridge2.0-0 \
-        libatk1.0-0 \
-        libatspi2.0-0 \
-        libcairo2 \
-        libcups2 \
-        libdbus-1-3 \
-        libdrm2 \
-        libgbm1 \
-        libglib2.0-0 \
-        libgtk-3-0 \
-        libnspr4 \
-        libnss3 \
-        libpango-1.0-0 \
-        libx11-6 \
-        libxcb1 \
-        libxcomposite1 \
-        libxdamage1 \
-        libxext6 \
-        libxfixes3 \
-        libxkbcommon0 \
-        libxrandr2 \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Non-root user MIT Home-Directory
-RUN groupadd -r appgroup && \
-    useradd -r -g appgroup -u 10001 -m -d /home/appuser appuser
-
-WORKDIR /code
-
-COPY --from=builder --chown=appuser:appgroup /code /code
-
-# Create all necessary directories
-RUN mkdir -p /code/logs /code/.crawl4ai && \
-    chown -R appuser:appgroup /code /home/appuser
-
-ENV PATH="/code/.venv/bin:$PATH" \
-    PLAYWRIGHT_BROWSERS_PATH=/code/.venv/lib/python3.13/site-packages/playwright/driver/browsers \
+# WICHTIG: Auch hier müssen wir Playwright sagen, wo die Browser liegen
+ENV PLAYWRIGHT_BROWSERS_PATH=/code/.venv/lib/python3.13/site-packages/playwright/driver/browsers \
+    PATH="/code/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     CRAWL4AI_BASE_DIRECTORY=/code/.crawl4ai
 
+WORKDIR /code
+
+# 1. venv kopieren (Da sind jetzt die Browser drin!)
+COPY --from=builder /code/.venv /code/.venv
+
+# 2. System-Dependencies installieren
+# Wir nutzen den Browser, der jetzt im venv liegt, um die Deps zu ermitteln
+RUN apt-get update && \
+    /code/.venv/bin/playwright install-deps chromium && \
+    apt-get install -y --no-install-recommends libpq5 && \
+    rm -rf /var/lib/apt/lists/*
+
+# 3. Rest kopieren
+COPY --from=builder /code /code
+
+RUN groupadd -r appgroup && useradd -r -g appgroup -u 10001 -m -d /home/appuser appuser
+RUN mkdir -p /code/logs /code/.crawl4ai && chown -R appuser:appgroup /code /home/appuser
+
 USER appuser
-
 EXPOSE 8080
-
 CMD ["uvicorn", "src.load_app:app", "--host", "0.0.0.0", "--port", "8080"]

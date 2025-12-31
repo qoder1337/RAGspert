@@ -26,15 +26,21 @@ services:
         max-file: "3"
 
   ragspert:
-    image: qoder1337/apitabnew:ragspertv0.25
+    image: qoder1337/apitabnew:ragspertv0.30
     container_name: ragspert_app
     environment:
       APP_ENV: ${APP_ENV}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GOOGLE_APPLICATION_CREDENTIALS: /app/secrets/gcloud-ragspert.json
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID}
       PGVECTOR_EMBED_STORE: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgvector:5432/${POSTGRES_DB}
     depends_on:
       pgvector:
         condition: service_healthy
+    volumes:
+      # Pfad links: HOST Server
+      # Pfad rechts: Container Destination
+      - /opt/portainer_data/secrets/gcloud-ragspert.json:/app/secrets/gcloud-ragspert.json:ro
     restart: unless-stopped
     shm_size: '2gb'
     security_opt:

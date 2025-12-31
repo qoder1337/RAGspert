@@ -130,7 +130,7 @@ async def ask_question(
             message_history=tool_result.new_messages(),  # Passes Tool-Results
         )
 
-        answer_html = markdown(answer, extensions=["fenced_code", "codehilite"])
+        answer_html = markdown(answer.data, extensions=["fenced_code", "codehilite"])
 
         return templates.TemplateResponse(
             "ask.html",
